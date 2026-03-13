@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  lines     Line[]
+
+  @@map("departments")
+}
+
+model Line {
+  id           String        @id @default(uuid()) @db.Uuid
+  departmentId String        @map("department_id") @db.Uuid
+  name         String        @db.VarChar(255)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  department   Department    @relation(fields: [departmentId], references: [id])
+  checkItems   CheckItem[]
+  checkResults CheckResult[]
+
+  @@map("lines")
+}
+
+model Category {
+  id         String      @id @default(uuid()) @db.Uuid
+  name       String      @unique @db.VarChar(255)
+  checkItems CheckItem[]
+
+  @@map("categories")
+}
+
+model CheckItem {
+  id           String        @id @default(uuid()) @db.Uuid
+  lineId       String        @map("line_id") @db.Uuid
+  categoryId   String        @map("category_id") @db.Uuid
+  itemName     String        @map("item_name") @db.Text
+  createdAt    DateTime      @default(now()) @map("created_at")
+  line         Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  category     Category      @relation(fields: [categoryId], references: [id])
+  checkResults CheckResult[]
+
+  @@map("check_items")
+}
+
+model CheckResult {
+  id          String    @id @default(uuid()) @db.Uuid
+  checkItemId String    @map("check_item_id") @db.Uuid
+  lineId      String    @map("line_id") @db.Uuid
+  status      Status
+  note        String?   @db.Text
+  checkDate   DateTime  @map("check_date") @db.Date
+  createdAt   DateTime  @default(now()) @map("created_at")
+  checkItem   CheckItem @relation(fields: [checkItemId], references: [id], onDelete: Cascade)
+  line        Line      @relation(fields: [lineId], references: [id])
+
+  @@map("check_results")
+}
+
+model Reflection {
+  id         String   @id @default(uuid()) @db.Uuid
+  title      String   @db.VarChar(255)
+  imagePath  String   @map("image_path") @db.Text
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  @@map("reflections")
+}
+
+enum Status {
+  OK
+  NG
+}
