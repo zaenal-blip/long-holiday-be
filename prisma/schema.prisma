@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Department {
@@ -53,6 +54,7 @@ model CheckResult {
   checkItemId String    @map("check_item_id") @db.Uuid
   lineId      String    @map("line_id") @db.Uuid
   status      Status
+  dayType     DayType   @map("day_type")
   note        String?   @db.Text
   checkDate   DateTime  @map("check_date") @db.Date
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -74,4 +76,12 @@ model Reflection {
 enum Status {
   OK
   NG
+}
+
+enum DayType {
+  DAY_16
+  DAY_17
+  DAY_18
+  BEFORE_PRODUCTION
+  FIRST_DAY_PRODUCTION
 }
