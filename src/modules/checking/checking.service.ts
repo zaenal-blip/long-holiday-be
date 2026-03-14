@@ -19,14 +19,7 @@ export class CheckingService {
         lineId: string;
         dayType: DayType;
         checkDate?: string;
-        results: Array<{
-            checkItemId: string;
-            status: Status;
-            totalMp?: number;
-            ngReason?: string;
-            countermeasurePlanDate?: string;
-            note?: string;
-        }>;
+        results: Array<{ checkItemId: string; status: Status; note?: string }>;
     }) {
         const checkDate = new Date(data.checkDate || Date.now());
 
