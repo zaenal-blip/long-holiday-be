@@ -19,7 +19,13 @@ export class CheckingService {
         lineId: string;
         dayType: DayType;
         checkDate?: string;
-        results: Array<{ checkItemId: string; status: Status; note?: string }>;
+        results: Array<{
+            checkItemId: string;
+            status: Status;
+            ngReason?: string;
+            countermeasurePlanDate?: string;
+            note?: string;
+        }>;
     }) {
         const checkDate = new Date(data.checkDate || Date.now());
 
@@ -35,9 +41,14 @@ export class CheckingService {
             });
 
             if (existing) {
-                await this.prisma.checkResult.update({
+                await (this.prisma.checkResult as any).update({
                     where: { id: existing.id },
-                    data: { status: res.status, note: res.note },
+                    data: {
+                        status: res.status,
+                        ngReason: res.ngReason,
+                        countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
+                        note: res.note,
+                    },
                 });
             } else {
                 await (this.prisma.checkResult as any).create({
@@ -46,6 +57,8 @@ export class CheckingService {
                         lineId: data.lineId,
                         dayType: data.dayType,
                         status: res.status,
+                        ngReason: res.ngReason,
+                        countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
                         note: res.note,
                         checkDate,
                     },

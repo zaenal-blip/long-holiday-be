@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Department {
@@ -37,29 +36,32 @@ model Category {
 }
 
 model CheckItem {
-  id           String        @id @default(uuid()) @db.Uuid
-  lineId       String        @map("line_id") @db.Uuid
-  categoryId   String        @map("category_id") @db.Uuid
-  itemName     String        @map("item_name") @db.Text
-  createdAt    DateTime      @default(now()) @map("created_at")
-  line         Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  category     Category      @relation(fields: [categoryId], references: [id])
-  checkResults CheckResult[]
+  id               String        @id @default(uuid()) @db.Uuid
+  lineId           String        @map("line_id") @db.Uuid
+  categoryId       String        @map("category_id") @db.Uuid
+  itemName         String        @map("item_name") @db.Text
+  checkDescription String        @map("check_description") @db.Text
+  createdAt        DateTime      @default(now()) @map("created_at")
+  line             Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  category         Category      @relation(fields: [categoryId], references: [id])
+  checkResults     CheckResult[]
 
   @@map("check_items")
 }
 
 model CheckResult {
-  id          String    @id @default(uuid()) @db.Uuid
-  checkItemId String    @map("check_item_id") @db.Uuid
-  lineId      String    @map("line_id") @db.Uuid
-  status      Status
-  dayType     DayType   @map("day_type")
-  note        String?   @db.Text
-  checkDate   DateTime  @map("check_date") @db.Date
-  createdAt   DateTime  @default(now()) @map("created_at")
-  checkItem   CheckItem @relation(fields: [checkItemId], references: [id], onDelete: Cascade)
-  line        Line      @relation(fields: [lineId], references: [id])
+  id                    String    @id @default(uuid()) @db.Uuid
+  checkItemId           String    @map("check_item_id") @db.Uuid
+  lineId                String    @map("line_id") @db.Uuid
+  status                Status
+  dayType               DayType   @map("day_type")
+  ngReason              String?   @map("ng_reason") @db.Text
+  countermeasurePlanDate DateTime? @map("countermeasure_plan_date") @db.Date
+  note                  String?   @db.Text
+  checkDate             DateTime  @map("check_date") @db.Date
+  createdAt             DateTime  @default(now()) @map("created_at")
+  checkItem             CheckItem @relation(fields: [checkItemId], references: [id], onDelete: Cascade)
+  line                  Line      @relation(fields: [lineId], references: [id])
 
   @@map("check_results")
 }
