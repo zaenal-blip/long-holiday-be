@@ -202,7 +202,8 @@ export class CheckingService {
             category: r.checkItem.category.name,
             item: r.checkItem.itemName,
             status: r.status,
-            note: r.note,
+            note: r.ngReason,
+            planCountermeasureDate: r.countermeasurePlanDate,
             createdAt: r.createdAt,
         }));
     }
