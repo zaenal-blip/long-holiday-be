@@ -56,10 +56,10 @@ export class MasterDataService {
             orderBy: { createdAt: "asc" },
         });
     }
-    async createCheckItem(data: { lineId: string; categoryId: string; itemName: string }) {
+    async createCheckItem(data: { lineId: string; categoryId: string; itemName: string; checkDescription: string }) {
         return this.prisma.checkItem.create({ data });
     }
-    async updateCheckItem(id: string, data: { itemName: string }) {
+    async updateCheckItem(id: string, data: { itemName?: string; checkDescription?: string }) {
         return this.prisma.checkItem.update({ where: { id }, data });
     }
     async deleteCheckItem(id: string) {

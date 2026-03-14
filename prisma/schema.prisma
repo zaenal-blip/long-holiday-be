@@ -37,14 +37,15 @@ model Category {
 }
 
 model CheckItem {
-  id           String        @id @default(uuid()) @db.Uuid
-  lineId       String        @map("line_id") @db.Uuid
-  categoryId   String        @map("category_id") @db.Uuid
-  itemName     String        @map("item_name") @db.Text
-  createdAt    DateTime      @default(now()) @map("created_at")
-  line         Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  category     Category      @relation(fields: [categoryId], references: [id])
-  checkResults CheckResult[]
+  id               String        @id @default(uuid()) @db.Uuid
+  lineId           String        @map("line_id") @db.Uuid
+  categoryId       String        @map("category_id") @db.Uuid
+  itemName         String        @map("item_name") @db.Text
+  checkDescription String        @map("check_description") @db.Text
+  createdAt        DateTime      @default(now()) @map("created_at")
+  line             Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  category         Category      @relation(fields: [categoryId], references: [id])
+  checkResults     CheckResult[]
 
   @@map("check_items")
 }

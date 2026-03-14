@@ -35,9 +35,15 @@ export class CheckingService {
             });
 
             if (existing) {
-                await this.prisma.checkResult.update({
+                await (this.prisma.checkResult as any).update({
                     where: { id: existing.id },
-                    data: { status: res.status, note: res.note },
+                    data: {
+                        status: res.status,
+                        totalMp: res.totalMp ?? null,
+                        ngReason: res.ngReason,
+                        countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
+                        note: res.note,
+                    },
                 });
             } else {
                 await (this.prisma.checkResult as any).create({
@@ -46,6 +52,9 @@ export class CheckingService {
                         lineId: data.lineId,
                         dayType: data.dayType,
                         status: res.status,
+                        totalMp: res.totalMp ?? null,
+                        ngReason: res.ngReason,
+                        countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
                         note: res.note,
                         checkDate,
                     },
