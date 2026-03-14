@@ -21,7 +21,8 @@ export class ReflectionController {
                 return;
             }
 
-            const imagePath = `/public/uploads/${req.file.filename}`;
+            // When using multer-storage-cloudinary, req.file.path contains the Cloudinary URL
+            const imagePath = req.file.path;
 
             const reflection = await this.reflectionService.uploadReflection({
                 title: title || req.file.originalname || "Reflection",
@@ -41,7 +42,7 @@ export class ReflectionController {
                 return;
             }
 
-            const imagePath = `/public/uploads/${req.file.filename}`;
+            const imagePath = req.file.path;
 
             const reflection = await this.reflectionService.replaceReflection({
                 title: title || req.file.originalname || "Reflection",
