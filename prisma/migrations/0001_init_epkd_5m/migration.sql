@@ -1,0 +1,3 @@
+-- Baseline migration for EPKD 5M
+-- The database schema was already synchronized via prisma db push.
+-- This migration is created to baseline the migration history.
