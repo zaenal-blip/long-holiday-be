@@ -55,6 +55,7 @@ model CheckResult {
   lineId                String    @map("line_id") @db.Uuid
   status                Status
   dayType               DayType   @map("day_type")
+  totalMp               Int?      @map("total_mp")
   ngReason              String?   @map("ng_reason") @db.Text
   countermeasurePlanDate DateTime? @map("countermeasure_plan_date") @db.Date
   note                  String?   @db.Text
