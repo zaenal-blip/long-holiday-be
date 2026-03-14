@@ -7,10 +7,10 @@ import { ReflectionService } from "./modules/reflection/reflection.service.js";
 import { MasterDataController } from "./modules/master-data/master-data.controller.js";
 import { CheckingController } from "./modules/checking/checking.controller.js";
 import { ReflectionController } from "./modules/reflection/reflection.controller.js";
-import { MasterDataRouter } from "./modules/master-data/master-data.router.js";
-import { CheckingRouter } from "./modules/checking/checking.router.js";
+import { createMasterDataRouter } from "./modules/master-data/master-data.router.js";
+import { createCheckingRouter } from "./modules/checking/checking.router.js";
 import { ReflectionRouter } from "./modules/reflection/reflection.router.js";
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 export class App {
     app;
     constructor() {
@@ -21,14 +21,13 @@ export class App {
     }
     configure = () => {
         this.app.use(cors({
-            origin: "http://localhost:5173",
+            origin: process.env.FRONTEND_URL || "http://localhost:5173",
             credentials: true
         }));
         this.app.use(express.json({ limit: "50mb" }));
         this.app.use(express.urlencoded({ extended: true, limit: "50mb" }));
     };
     registerModules = () => {
-        // shared dependency
         const prismaClient = prisma;
         // services
         const masterDataService = new MasterDataService(prismaClient);
@@ -39,13 +38,11 @@ export class App {
         const checkingController = new CheckingController(checkingService);
         const reflectionController = new ReflectionController(reflectionService);
         // routes
-        const masterDataRouter = new MasterDataRouter(masterDataController);
-        const checkingRouter = new CheckingRouter(checkingController);
         const reflectionRouter = new ReflectionRouter(reflectionController);
         // entry point
-        this.app.use("/public", express.static("public")); // ADDED: setup static serving for uploaded files
-        this.app.use("/master-data", masterDataRouter.getRouter());
-        this.app.use("/checking", checkingRouter.getRouter());
+        this.app.use("/public", express.static("public"));
+        this.app.use("/master-data", createMasterDataRouter(masterDataController));
+        this.app.use("/checking", createCheckingRouter(checkingController));
         this.app.use("/reflection", reflectionRouter.getRouter());
     };
     handleError = () => {

@@ -1,20 +1,19 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-// Ensure the directory exists
-const uploadPath = path.join(process.cwd(), "public", "uploads");
-if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-}
-// Set up storage engine
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `${uniqueSuffix}${ext}`);
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../lib/cloudinary.js";
+// Set up Cloudinary storage engine
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "epkd-reflections",
+        // Setting resource_type to "image" for PDFs allows them to be displayed in browser
+        // Setting format to "pdf" ensures it stays a PDF
+        resource_type: "image",
+        format: "pdf",
+        public_id: (req, file) => {
+            const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+            return `${uniqueSuffix}`;
+        },
     },
 });
 export const upload = multer({

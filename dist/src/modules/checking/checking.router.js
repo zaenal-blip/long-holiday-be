@@ -1,21 +1,11 @@
-import express from "express";
-export class CheckingRouter {
-    checkingController;
-    router;
-    constructor(checkingController) {
-        this.checkingController = checkingController;
-        this.router = express.Router();
-        this.initRoutes();
-    }
-    initRoutes() {
-        this.router.post("/submit", this.checkingController.submitCheck);
-        this.router.get("/summary", this.checkingController.getDashboardSummary);
-        this.router.get("/progress-stage", this.checkingController.getProgressByStage);
-        this.router.get("/progress-line", this.checkingController.getProgressByLine);
-        this.router.get("/ng-monitoring", this.checkingController.getNGMonitoring);
-        this.router.get("/results", this.checkingController.getAllResults);
-    }
-    getRouter() {
-        return this.router;
-    }
+import { Router } from "express";
+export function createCheckingRouter(controller) {
+    const router = Router();
+    router.post("/submit", controller.submitCheck);
+    router.get("/summary", controller.getDashboardSummary);
+    router.get("/progress-line", controller.getProgressByLine);
+    router.get("/progress-category", controller.getProgressByCategory);
+    router.get("/ng-monitoring", controller.getNGMonitoring);
+    router.get("/results", controller.getAllResults);
+    return router;
 }

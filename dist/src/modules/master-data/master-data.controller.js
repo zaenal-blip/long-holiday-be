@@ -1,265 +1,130 @@
 export class MasterDataController {
-    masterDataService;
-    constructor(masterDataService) {
-        this.masterDataService = masterDataService;
+    service;
+    constructor(service) {
+        this.service = service;
     }
+    handleDeleteError = (error, res, next) => {
+        if (error && error.code === "P2003") {
+            return res.status(400).json({ error: "Cannot delete: item is referenced by existing records." });
+        }
+        if (error && error.code === "P2025") {
+            return res.status(404).json({ error: "Record not found." });
+        }
+        next(error);
+    };
+    // --- Departments ---
+    getDepartments = async (_req, res, next) => {
+        try {
+            res.json(await this.service.getDepartments());
+        }
+        catch (e) {
+            next(e);
+        }
+    };
+    createDepartment = async (req, res, next) => {
+        try {
+            res.status(201).json(await this.service.createDepartment(req.body));
+        }
+        catch (e) {
+            next(e);
+        }
+    };
+    updateDepartment = async (req, res, next) => {
+        try {
+            res.json(await this.service.updateDepartment(req.params.id, req.body));
+        }
+        catch (e) {
+            next(e);
+        }
+    };
+    deleteDepartment = async (req, res, next) => {
+        try {
+            res.json(await this.service.deleteDepartment(req.params.id));
+        }
+        catch (e) {
+            this.handleDeleteError(e, res, next);
+        }
+    };
     // --- Lines ---
     getLines = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.getLines();
-            res.status(200).send(result);
+            res.json(await this.service.getLines(req.query.departmentId));
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
     createLine = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.createLine(req.body);
-            res.status(201).send(result);
+            res.status(201).json(await this.service.createLine(req.body));
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
     updateLine = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.updateLine(req.params.id, req.body);
-            res.status(200).send(result);
+            res.json(await this.service.updateLine(req.params.id, req.body));
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
     deleteLine = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.deleteLine(req.params.id);
-            res.status(200).send(result);
+            res.json(await this.service.deleteLine(req.params.id));
         }
-        catch (error) {
-            next(error);
-        }
-    };
-    // --- Stages ---
-    getStages = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.getStages();
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
+        catch (e) {
+            this.handleDeleteError(e, res, next);
         }
     };
-    createStage = async (req, res, next) => {
+    // --- Categories ---
+    getCategories = async (_req, res, next) => {
         try {
-            const result = await this.masterDataService.createStage(req.body);
-            res.status(201).send(result);
+            res.json(await this.service.getCategories());
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
-    updateStage = async (req, res, next) => {
+    // --- Check Items ---
+    getCheckItems = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.updateStage(req.params.id, req.body);
-            res.status(200).send(result);
+            const lineId = req.query.lineId;
+            const categoryId = req.query.categoryId;
+            if (lineId && categoryId) {
+                res.json(await this.service.getCheckItems(lineId, categoryId));
+            }
+            else {
+                res.json(await this.service.getAllCheckItems(lineId));
+            }
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
-    deleteStage = async (req, res, next) => {
+    createCheckItem = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.deleteStage(req.params.id);
-            res.status(200).send(result);
+            res.status(201).json(await this.service.createCheckItem(req.body));
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
-    // --- Man ---
-    getManItems = async (req, res, next) => {
+    updateCheckItem = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.getManItems();
-            res.status(200).send(result);
+            res.json(await this.service.updateCheckItem(req.params.id, req.body));
         }
-        catch (error) {
-            next(error);
+        catch (e) {
+            next(e);
         }
     };
-    createManItem = async (req, res, next) => {
+    deleteCheckItem = async (req, res, next) => {
         try {
-            const result = await this.masterDataService.createManItem(req.body);
-            res.status(201).send(result);
+            res.json(await this.service.deleteCheckItem(req.params.id));
         }
-        catch (error) {
-            next(error);
-        }
-    };
-    updateManItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.updateManItem(req.params.id, req.body);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    deleteManItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.deleteManItem(req.params.id);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    // --- Machine ---
-    getMachineItems = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.getMachineItems();
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    createMachineItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.createMachineItem(req.body);
-            res.status(201).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    updateMachineItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.updateMachineItem(req.params.id, req.body);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    deleteMachineItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.deleteMachineItem(req.params.id);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    // --- Material ---
-    getMaterialItems = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.getMaterialItems();
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    createMaterialItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.createMaterialItem(req.body);
-            res.status(201).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    updateMaterialItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.updateMaterialItem(req.params.id, req.body);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    deleteMaterialItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.deleteMaterialItem(req.params.id);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    // --- Method ---
-    getMethodItems = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.getMethodItems();
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    createMethodItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.createMethodItem(req.body);
-            res.status(201).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    updateMethodItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.updateMethodItem(req.params.id, req.body);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    deleteMethodItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.deleteMethodItem(req.params.id);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    // --- Environment ---
-    getEnvironmentItems = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.getEnvironmentItems();
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    createEnvironmentItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.createEnvironmentItem(req.body);
-            res.status(201).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    updateEnvironmentItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.updateEnvironmentItem(req.params.id, req.body);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    deleteEnvironmentItem = async (req, res, next) => {
-        try {
-            const result = await this.masterDataService.deleteEnvironmentItem(req.params.id);
-            res.status(200).send(result);
-        }
-        catch (error) {
-            next(error);
+        catch (e) {
+            this.handleDeleteError(e, res, next);
         }
     };
 }
