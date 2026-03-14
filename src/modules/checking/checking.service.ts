@@ -22,6 +22,7 @@ export class CheckingService {
         results: Array<{
             checkItemId: string;
             status: Status;
+            totalMp?: number;
             ngReason?: string;
             countermeasurePlanDate?: string;
             note?: string;
@@ -45,6 +46,7 @@ export class CheckingService {
                     where: { id: existing.id },
                     data: {
                         status: res.status,
+                        totalMp: res.totalMp ?? null,
                         ngReason: res.ngReason,
                         countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
                         note: res.note,
@@ -57,6 +59,7 @@ export class CheckingService {
                         lineId: data.lineId,
                         dayType: data.dayType,
                         status: res.status,
+                        totalMp: res.totalMp ?? null,
                         ngReason: res.ngReason,
                         countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
                         note: res.note,
