@@ -65,4 +65,18 @@ export class MasterDataService {
     async deleteCheckItem(id: string) {
         return this.prisma.checkItem.delete({ where: { id } });
     }
+
+    // --- Stages (Day Types) ---
+    async getStages() {
+        return this.prisma.stage.findMany({ orderBy: { createdAt: "asc" } });
+    }
+    async createStage(data: { name: string; label: string }) {
+        return this.prisma.stage.create({ data });
+    }
+    async updateStage(id: string, data: { name?: string; label?: string }) {
+        return this.prisma.stage.update({ where: { id }, data });
+    }
+    async deleteStage(id: string) {
+        return this.prisma.stage.delete({ where: { id } });
+    }
 }
