@@ -1,27 +1,20 @@
 import { PrismaClient, Status } from "@prisma/client";
 
-export enum DayType {
-    DAY_16 = 'DAY_16',
-    DAY_17 = 'DAY_17',
-    DAY_18 = 'DAY_18',
-    BEFORE_PRODUCTION = 'BEFORE_PRODUCTION',
-    FIRST_DAY_PRODUCTION = 'FIRST_DAY_PRODUCTION'
-}
-
 export class CheckingService {
     constructor(private prisma: PrismaClient) { }
 
     /**
      * Submit check results for a line on a given date.
-     * Payload: { lineId, dayType, checkDate, results: [{ checkItemId, status, note? }] }
+     * Payload: { lineId, stageId, checkDate, results: [{ checkItemId, status, note? }] }
      */
     async submitCheck(data: {
         lineId: string;
-        dayType: DayType;
+        stageId: string;
         checkDate?: string;
         results: Array<{
             checkItemId: string;
             status: Status;
+            shift?: any; // Using any for now to handle enum compatibility
             totalMp?: number;
             ngReason?: string;
             countermeasurePlanDate?: string;
@@ -31,12 +24,12 @@ export class CheckingService {
         const checkDate = new Date(data.checkDate || Date.now());
 
         for (const res of data.results) {
-            // Upsert: find existing result for same checkItem + line + date + dayType
+            // Upsert: find existing result for same checkItem + line + date + stageId
             const existing = await (this.prisma.checkResult as any).findFirst({
                 where: {
                     checkItemId: res.checkItemId,
                     lineId: data.lineId,
-                    dayType: data.dayType,
+                    stageId: data.stageId,
                     checkDate,
                 },
             });
@@ -46,6 +39,7 @@ export class CheckingService {
                     where: { id: existing.id },
                     data: {
                         status: res.status,
+                        shift: res.shift || null,
                         totalMp: res.totalMp ?? null,
                         ngReason: res.ngReason,
                         countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
@@ -57,8 +51,9 @@ export class CheckingService {
                     data: {
                         checkItemId: res.checkItemId,
                         lineId: data.lineId,
-                        dayType: data.dayType,
+                        stageId: data.stageId,
                         status: res.status,
+                        shift: res.shift || null,
                         totalMp: res.totalMp ?? null,
                         ngReason: res.ngReason,
                         countermeasurePlanDate: res.countermeasurePlanDate ? new Date(res.countermeasurePlanDate) : null,
@@ -80,8 +75,19 @@ export class CheckingService {
             where.line = { departmentId: filters.departmentId };
         }
 
-        if (filters.dayType && filters.dayType !== "all") {
-            where.dayType = filters.dayType;
+        if (filters.stageId && filters.stageId !== "all") {
+            where.stageId = filters.stageId;
+        }
+
+        if (filters.shift && filters.shift !== "all") {
+            where.shift = filters.shift;
+        }
+
+        // Handle backward compatibility for filter names if needed, 
+        // but prefer stageId from now on.
+        if (filters.dayType && filters.dayType !== "all" && !filters.stageId) {
+            // If dashboard still sends dayType as the ID of the stage
+            where.stageId = filters.dayType;
         }
 
         return where;
@@ -116,11 +122,13 @@ export class CheckingService {
             orderBy: { name: "asc" },
         });
 
+        const baseWhere = this.buildWhereClause(filters);
+
         const progress = await Promise.all(
             lines.map(async (line) => {
                 const [ok, ng] = await Promise.all([
-                    this.prisma.checkResult.count({ where: { lineId: line.id, status: "OK" } }),
-                    this.prisma.checkResult.count({ where: { lineId: line.id, status: "NG" } }),
+                    (this.prisma.checkResult as any).count({ where: { ...baseWhere, lineId: line.id, status: "OK" } }),
+                    (this.prisma.checkResult as any).count({ where: { ...baseWhere, lineId: line.id, status: "NG" } }),
                 ]);
                 return { id: line.id, name: line.name, department: line.department.name, total: ok + ng, ok, ng };
             })
@@ -202,6 +210,7 @@ export class CheckingService {
             category: r.checkItem.category.name,
             item: r.checkItem.itemName,
             status: r.status,
+            shift: r.shift,
             note: r.ngReason,
             planCountermeasureDate: r.countermeasurePlanDate,
             createdAt: r.createdAt,

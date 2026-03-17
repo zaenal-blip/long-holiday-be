@@ -49,12 +49,23 @@ model CheckItem {
   @@map("check_items")
 }
 
+model Stage {
+  id        String        @id @default(uuid()) @db.Uuid
+  name      String        @unique @db.VarChar(255)
+  label     String        @db.VarChar(255)
+  createdAt DateTime      @default(now()) @map("created_at")
+  results   CheckResult[]
+
+  @@map("stages")
+}
+
 model CheckResult {
   id                    String    @id @default(uuid()) @db.Uuid
   checkItemId           String    @map("check_item_id") @db.Uuid
   lineId                String    @map("line_id") @db.Uuid
   status                Status
-  dayType               DayType   @map("day_type")
+  stageId               String    @map("stage_id") @db.Uuid
+  shift                 Shift?
   totalMp               Int?      @map("total_mp")
   ngReason              String?   @map("ng_reason") @db.Text
   countermeasurePlanDate DateTime? @map("countermeasure_plan_date") @db.Date
@@ -63,6 +74,7 @@ model CheckResult {
   createdAt             DateTime  @default(now()) @map("created_at")
   checkItem             CheckItem @relation(fields: [checkItemId], references: [id], onDelete: Cascade)
   line                  Line      @relation(fields: [lineId], references: [id])
+  stage                 Stage     @relation(fields: [stageId], references: [id])
 
   @@map("check_results")
 }
@@ -81,10 +93,7 @@ enum Status {
   NG
 }
 
-enum DayType {
-  DAY_16
-  DAY_17
-  DAY_18
-  BEFORE_PRODUCTION
-  FIRST_DAY_PRODUCTION
+enum Shift {
+  RED
+  WHITE
 }

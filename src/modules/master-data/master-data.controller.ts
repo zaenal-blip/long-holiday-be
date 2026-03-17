@@ -68,4 +68,18 @@ export class MasterDataController {
     deleteCheckItem = async (req: Request, res: Response, next: NextFunction) => {
         try { res.json(await this.service.deleteCheckItem(req.params.id as string)); } catch (e) { this.handleDeleteError(e, res, next); }
     };
+
+    // --- Stages (Day Types) ---
+    getStages = async (_req: Request, res: Response, next: NextFunction) => {
+        try { res.json(await this.service.getStages()); } catch (e) { next(e); }
+    };
+    createStage = async (req: Request, res: Response, next: NextFunction) => {
+        try { res.status(201).json(await this.service.createStage(req.body)); } catch (e) { next(e); }
+    };
+    updateStage = async (req: Request, res: Response, next: NextFunction) => {
+        try { res.json(await this.service.updateStage(req.params.id as string, req.body)); } catch (e) { next(e); }
+    };
+    deleteStage = async (req: Request, res: Response, next: NextFunction) => {
+        try { res.json(await this.service.deleteStage(req.params.id as string)); } catch (e) { this.handleDeleteError(e, res, next); }
+    };
 }

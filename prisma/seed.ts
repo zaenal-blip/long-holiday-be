@@ -7,6 +7,24 @@ const adapter = new PrismaPg({ connectionString }, { schema: "public" });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+    // Seed Stages (Dynamic Day Types)
+    const stages = [
+        { name: "DAY_16", label: "D-3 (16 Maret)" },
+        { name: "DAY_17", label: "D-2 (17 Maret)" },
+        { name: "DAY_18", label: "D-1 (18 Maret)" },
+        { name: "BEFORE_PRODUCTION", label: "Before Production (29 Maret)" },
+        { name: "FIRST_DAY_PRODUCTION", label: "First Day Production (30 Maret)" },
+    ];
+    for (const stage of stages) {
+        console.log(`Seeding stage: ${stage.name}`);
+        await prisma.stage.upsert({
+            where: { name: stage.name },
+            update: { label: stage.label },
+            create: { name: stage.name, label: stage.label },
+        });
+    }
+    console.log("✅ Stages seeded");
+
     // Seed Categories (global, static)
     const categoryNames = ["Man", "Machine", "Material", "Method", "Environment"];
     for (const name of categoryNames) {
@@ -50,7 +68,8 @@ async function main() {
                 const checkDescription = `Standard inspection for ${cat.name}`;
                 const existing = await prisma.checkItem.findFirst({ where: { itemName, lineId: mainLine.id, categoryId: cat.id } });
                 if (!existing) {
-                    await (prisma.checkItem as any).create({ data: { itemName, checkDescription, lineId: mainLine.id, categoryId: cat.id } });
+                    console.log(`Creating check item: ${itemName}`);
+                    await prisma.checkItem.create({ data: { itemName, checkDescription, lineId: mainLine.id, categoryId: cat.id } });
                 }
             }
             console.log("✅ Production example check items seeded");
@@ -60,7 +79,7 @@ async function main() {
     // Seed Lines for PAD department
     const padDept = await prisma.department.findUnique({ where: { name: "PAD" } });
     if (padDept) {
-        const lineNames = ["PAD Line A", "PAD Line B", "PAD Line C"];
+        const lineNames = ["Logistic operation", "CCr", "Utility", "Warehouse"];
         for (const name of lineNames) {
             const existing = await prisma.line.findFirst({ where: { name, departmentId: padDept.id } });
             if (!existing) {

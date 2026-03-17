@@ -25,5 +25,11 @@ export function createMasterDataRouter(controller: MasterDataController): Router
     router.patch("/check-items/:id", controller.updateCheckItem);
     router.delete("/check-items/:id", controller.deleteCheckItem);
 
+    // Stages
+    router.get("/stages", controller.getStages);
+    router.post("/stages", controller.createStage);
+    router.patch("/stages/:id", controller.updateStage);
+    router.delete("/stages/:id", controller.deleteStage);
+
     return router;
 }
